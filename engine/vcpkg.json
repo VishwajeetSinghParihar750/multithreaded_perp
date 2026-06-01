@@ -1,0 +1,8 @@
+{
+    "name": "perp",
+    "version": "0.1.0",
+    "dependencies": [
+        "protobuf",
+        "redis-plus-plus"
+    ]
+}

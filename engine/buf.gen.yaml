@@ -1,0 +1,9 @@
+version: v2
+# Clean output directories before running code generation
+clean: true
+plugins:
+  # 1. Generates core C++ message and enum source/header files (.pb.h / .pb.cc)
+  - remote: bufbuild.ru/protocolbuffers/cpp:v33.4
+    out: gen/cpp
+inputs:
+  - directory: proto
