@@ -1,6 +1,8 @@
 syntax = "proto3";
 
-package shared;
+package Shared;
+
+
 
 enum ORDER_STATUS {
     FILLED = 0;
@@ -23,8 +25,8 @@ enum CURRENCY_SYMBOL {
 
 
 enum SIDE  {
-    BUY  = 0;
-    SELL = 1;
+    LONG  = 0;
+    SHORT = 1;
 }
 
 enum TYPE {
@@ -35,6 +37,10 @@ enum TYPE {
 enum MARGIN_TYPE {
     ISOLATED = 0;
     CROSS = 1;
+}
+
+message POSITION_ID {
+    string value = 1;
 }
 
 message USER_ID {
@@ -59,8 +65,26 @@ message MARGIN {
 message FILL_ID {
     string value = 1;
 }
+message REQUEST_ID {
+    string value = 1;
+}
 
-message CREATE_ORDER_PAYLOAD { 
+message STREAM_ID {
+    string value = 1;
+}
+
+
+
+message DEPTH_LEVEL {
+    PRICE price = 1;
+    QTY qty = 2;
+}
+message DEPTH_INFO {
+    repeated DEPTH_LEVEL asks = 1;
+    repeated DEPTH_LEVEL bids = 2;
+}
+
+message ORDER_INFO { 
     PRICE price = 1;
     QTY qty = 2;
     TRADABLE_CURRENCY_SYMBOL symbol = 3;
@@ -70,6 +94,13 @@ message CREATE_ORDER_PAYLOAD {
     SIDE side = 7;
 }
 
+message FILL_ORDER_INFO {
+    USER_ID userId = 1;
+    ORDER_ID orderId = 2;
+    QTY filledQty = 3;
+    QTY totalOrderQty = 4;
+    ORDER_STATUS orderStatus = 5;
+}
 
 enum ENGINE_EVENT_TYPE {
     DEPTH_UPDATED_ET = 0;
