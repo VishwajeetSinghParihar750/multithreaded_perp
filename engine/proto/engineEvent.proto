@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package engineEvent;
+
+import "shared.proto";
+
+
+message EVENT_METADATA {
+    string idempotencyKey = 1;
+    shared.ENGINE_EVENT_TYPE type = 2;
+}
+
+message LEVEL {
+    int64 price = 1;
+    int64 qty = 2;
+}
+
+message DEPTH_UPDATES {
+    repeated LEVEL asks = 1;
+    repeated LEVEL bids = 2;
+}
+
+message FILL_ORDER_INFO {
+    shared.USER_ID userId = 1;
+    shared.ORDER_ID orderId = 2;
+    shared.QTY filledQty = 3;
+    shared.QTY totalOrderQty = 4;
+    shared.ORDER_STATUS orderStatus = 5;
+}
+
+
+// actual messages 
+message DEPTH_UPDATED {
+    EVENT_METADATA metadata = 1;
+    shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    DEPTH_UPDATES depthUpdates = 3;
+}
+
+message INDEXPRICE_UPDATED {
+    EVENT_METADATA metadata = 1;
+    shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    shared.PRICE price = 3;
+}
+
+message LAST_TRADED_PRICE_UPDATED {
+    EVENT_METADATA metadata = 1;
+    shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    shared.PRICE price = 3;
+}
+
+message TRADES_CREATED {
+    EVENT_METADATA metadata = 1;
+    shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    repeated LEVEL trades = 3;
+}
+
+message ORDER_CANCELLED {
+    EVENT_METADATA metadata = 1;
+    shared.ORDER_ID orderId = 2;
+}
+
+message FUNDING_CREATED {
+    EVENT_METADATA metadata = 1;
+    shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+}
+
+message ORDER_CREATED {
+    EVENT_METADATA metadata = 1;
+    shared.USER_ID userId = 2;
+    shared.ORDER_ID orderId = 3;
+    shared.PRICE price = 4;
+    shared.QTY filledQty = 5;
+    shared.QTY qty = 6;
+    shared.MARGIN margin = 7;
+    shared.MARGIN_TYPE marginType = 8;
+    shared.SIDE side = 9;
+    shared.TYPE type = 10;
+    shared.TRADABLE_CURRENCY_SYMBOL symbol = 11;
+    shared.ORDER_STATUS orderStatus = 12;
+}
+
+message FILLS_CREATED {
+    EVENT_METADATA metadata = 1;
+    shared.FILL_ID fillId = 2;
+    FILL_ORDER_INFO buyOrderInfo = 3;
+    FILL_ORDER_INFO sellOrderInfo = 4;
+    shared.QTY qty = 5;
+    shared.PRICE price = 6;
+    shared.PRICE bidPrice = 7;
+    shared.TRADABLE_CURRENCY_SYMBOL symbol = 8;
+}
+message ENGINE_EVENT {
+    oneof event {
+        DEPTH_UPDATED depth_updated = 1;
+        INDEXPRICE_UPDATED indexprice_updated = 2;
+        LAST_TRADED_PRICE_UPDATED last_traded_price_updated = 3;
+        TRADES_CREATED trades_created = 4;
+        ORDER_CANCELLED order_cancelled = 5;
+        FUNDING_CREATED funding_created = 6;
+        ORDER_CREATED order_created = 7;
+        FILLS_CREATED fills_created = 8;
+    }
+}

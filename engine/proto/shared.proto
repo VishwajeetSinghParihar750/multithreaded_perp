@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package shared;
+
+enum ORDER_STATUS {
+    FILLED = 0;
+    OPEN = 1;
+    CANCELLED = 2;
+    PARTIALLY_FILLED = 3;
+}
+
+enum TRADABLE_CURRENCY_SYMBOL {
+    BTCUSD_TCS = 0;
+    SOLUSD_TCS = 1;
+    ETHUSD_TCS = 2;
+}
+enum CURRENCY_SYMBOL {
+    USD = 0 ;
+    BTCUSD = 1;
+    SOLUSD = 2;
+    ETHUSD = 3;
+}
+
+
+enum SIDE  {
+    BUY  = 0;
+    SELL = 1;
+}
+
+enum TYPE {
+    MARKET = 0;
+    LIMIT = 1;
+}
+
+enum MARGIN_TYPE {
+    ISOLATED = 0;
+    CROSS = 1;
+}
+
+message USER_ID {
+    string value = 1;
+}
+message ORDER_ID {
+    string value = 1;
+}
+
+message PRICE {
+    int64 value = 1;
+}
+
+message QTY {
+    int64 value = 1;
+}
+
+
+message MARGIN {
+    int64 value = 1;
+}
+message FILL_ID {
+    string value = 1;
+}
+
+message CREATE_ORDER_PAYLOAD { 
+    PRICE price = 1;
+    QTY qty = 2;
+    TRADABLE_CURRENCY_SYMBOL symbol = 3;
+    MARGIN margin = 4;
+    MARGIN_TYPE marginType = 5;
+    TYPE type = 6;
+    SIDE side = 7;
+}
+
+
+enum ENGINE_EVENT_TYPE {
+    DEPTH_UPDATED_ET = 0;
+    LAST_TRADED_PRICE_UPDATED_ET = 1;
+    TRADES_CREATED_ET = 2;
+    ORDER_CREATED_ET = 3;
+    ORDER_CANCELLED_ET = 4;
+    FILLS_CREATED_ET = 5;
+    INDEXPRICE_UPDATED_ET = 6;
+    FUNDING_CREATED_ET = 7;
+}
