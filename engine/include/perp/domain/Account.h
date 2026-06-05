@@ -32,16 +32,15 @@ namespace DOMAIN
         }
     }
 
-    class Balance
-    {
-    public:
-        uint64_t balance = 0;
-        uint64_t lockedBalance = 0;
-    };
-
     // this nees to be thread safe
     class Account
     {
+        class Balance
+        {
+        public:
+            uint64_t balance = 0;
+            uint64_t lockedBalance = 0;
+        };
 
         std::unordered_map<USER_ID, Balance> balance;
 
