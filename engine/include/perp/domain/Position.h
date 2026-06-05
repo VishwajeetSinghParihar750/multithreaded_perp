@@ -1,3 +1,9 @@
-class Position
+
+
+namespace DOMAIN
 {
-};
+
+    class Position
+    {
+    };
+} // namespace DOMAIN

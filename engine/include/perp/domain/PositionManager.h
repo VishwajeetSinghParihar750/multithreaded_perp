@@ -1,3 +1,8 @@
-class PositionManager
+
+
+namespace DOMAIN
 {
-};
+    class PositionManager
+    {
+    };
+}

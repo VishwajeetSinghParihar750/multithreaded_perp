@@ -1,3 +1,7 @@
-class Market
+
+namespace DOMAIN
 {
-};
+    class Market
+    {
+    };
+}

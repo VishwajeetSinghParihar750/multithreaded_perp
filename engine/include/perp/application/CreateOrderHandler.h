@@ -9,7 +9,8 @@
 #include "../domain/PositionManager.h"
 #include "../domain/Account.h"
 #include "../domain/types.h"
-
+#include "../status/status.h"
+#include "../util/ErrorHandling.h"
 namespace APPLICATION
 {
 
@@ -25,9 +26,6 @@ namespace APPLICATION
         DOMAIN::MARGIN_TYPE marginType;
     };
 
-    class CreateOrderError
-    {
-    };
     class CreateOrderResponse
     {
     };
@@ -35,16 +33,21 @@ namespace APPLICATION
     class CreateOrderHandler
     {
 
-        RiskEngine &riskEngine;
-        Orderbook &orderbook;
-        PositionManager &positionManager;
-        Account &account;
+        DOMAIN::RiskEngine &riskEngine;
+        DOMAIN::Orderbook &orderbook;
+        DOMAIN::PositionManager &positionManager;
+        DOMAIN::Account &account;
 
-        CreateOrderHandler(RiskEngine &riskEngine_, Orderbook &orderbook_, PositionManager &positionManager_, Account &account_)
+        CreateOrderHandler(DOMAIN::RiskEngine &riskEngine_, DOMAIN::Orderbook &orderbook_, DOMAIN::PositionManager &positionManager_, DOMAIN::Account &account_)
             : riskEngine(riskEngine_), orderbook(orderbook_), positionManager(positionManager_), account(account_) {}
 
-        std::expected<CreateOrderResponse, CreateOrderError> handle(CreateOrderCommand command)
+        static STATUS::StatusOr<DOMAIN::Order> commandToDomain(CreateOrderCommand command) {}
+
+        STATUS::StatusOr<CreateOrderResponse> handle(CreateOrderCommand command)
         {
+            ASSIGN_OR_RETURN(order, commandToDomain(command));
+
+            ASSIGN_OR_RETURN(marginRequired, riskEngine.evaluateOrder(order));
         }
     };
 

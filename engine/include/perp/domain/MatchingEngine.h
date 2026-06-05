@@ -1,3 +1,7 @@
-class MatchingEngine
+
+namespace DOMAIN
 {
-};
+    class MatchingEngine
+    {
+    };
+}

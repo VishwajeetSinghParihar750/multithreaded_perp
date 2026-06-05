@@ -3,17 +3,29 @@
 #include <inttypes.h>
 #include <types.h>
 
-class Order
+namespace DOMAIN
 {
-    DOMAIN::USER_ID userId;
-    DOMAIN::ORDER_ID orderId;
-    uint64_t price;
-    uint64_t quantity;
-    uint64_t margin;
-    uint64_t filledQuantity;
-    DOMAIN::TRADABLE_CURRENCY_SYMBOL symbol;
-    DOMAIN::ORDER_STATUS status;
-    DOMAIN::SIDE side;
-    DOMAIN::ORDER_TYPE type;
-    DOMAIN::MARGIN_TYPE marginType;
-};
+
+    class Order
+    {
+    public:
+        USER_ID userId;
+        ORDER_ID orderId;
+        uint64_t price;
+        uint64_t quantity;
+        uint64_t margin;
+        uint64_t filledQuantity;
+        TRADABLE_CURRENCY_SYMBOL symbol;
+        ORDER_STATUS status;
+        SIDE side;
+        ORDER_TYPE type;
+        MARGIN_TYPE marginType;
+
+        Order(USER_ID userId, ORDER_ID orderId, uint64_t price, uint64_t quantity,
+              uint64_t margin, uint64_t filledQuantity, TRADABLE_CURRENCY_SYMBOL symbol,
+              ORDER_STATUS status, SIDE side, ORDER_TYPE type, MARGIN_TYPE marginType)
+            : userId(userId), orderId(orderId), price(price), quantity(quantity),
+              margin(margin), filledQuantity(filledQuantity), symbol(symbol),
+              status(status), side(side), type(type), marginType(marginType) {}
+    };
+} // namespace DOMAIN

@@ -1,3 +1,7 @@
-class Trade
+
+namespace DOMAIN
 {
-};
+    class Trade
+    {
+    };
+}

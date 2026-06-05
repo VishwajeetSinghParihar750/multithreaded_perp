@@ -4,22 +4,27 @@
 #include "expected"
 #include "inttypes.h"
 #include "Order.h"
+#include "../status/status.h"
 
-enum class RISK_ERROR
-{
-    INSUFFICIENT_BALANCE
-};
-
-class RiskEngine
+namespace DOMAIN
 {
 
-    Account &account;
-
-    RiskEngine(Account account_) : account(account_) {}
-
-    // return margin required for this order
-    std::expected<uint64_t, RISK_ERROR> evaluateOrder(Order order)
+    enum class RISK_ERROR
     {
-        //
-    }
-};
+        INSUFFICIENT_BALANCE
+    };
+
+    class RiskEngine
+    {
+
+        Account &account;
+
+    public:
+        RiskEngine(Account account_) : account(account_) {}
+
+        // return margin required for this order
+        STATUS::StatusOr<uint64_t> evaluateOrder(Order order)
+        {
+        }
+    };
+} // namespace DOMAIN

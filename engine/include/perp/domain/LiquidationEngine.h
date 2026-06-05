@@ -1,3 +1,8 @@
-class LiquidationEngine
+
+
+namespace DOMAIN
 {
-};
+    class LiquidationEngine
+    {
+    };
+}
