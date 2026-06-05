@@ -10,28 +10,6 @@
 namespace DOMAIN
 {
 
-    enum class ACCOUNT_ERROR
-    {
-        USER_DOES_NOT_EXIST,
-        EXCEEDING_MAX_BALANCE_LIMIT,
-        INSUFFICIENT_BALANCE,
-    };
-
-    std::string_view accountErrorToStringView(const ACCOUNT_ERROR &error)
-    {
-        switch (error)
-        {
-        case ACCOUNT_ERROR::EXCEEDING_MAX_BALANCE_LIMIT:
-            return "EXCEEDING_MAX_BALANCE_LIMIT";
-        case ACCOUNT_ERROR::INSUFFICIENT_BALANCE:
-            return "INSUFFICIENT_BALANCE";
-        case ACCOUNT_ERROR::USER_DOES_NOT_EXIST:
-            return "USER_DOES_NOT_EXIST";
-        default:
-            return "";
-        }
-    }
-
     // this nees to be thread safe
     class Account
     {
@@ -41,7 +19,29 @@ namespace DOMAIN
             uint64_t balance = 0;
             uint64_t lockedBalance = 0;
         };
+        enum class ACCOUNT_ERROR
+        {
+            USER_DOES_NOT_EXIST,
+            EXCEEDING_MAX_BALANCE_LIMIT,
+            INSUFFICIENT_BALANCE,
+        };
 
+        static constexpr std::string_view accountErrorToStringView(const ACCOUNT_ERROR &error)
+        {
+            switch (error)
+            {
+            case ACCOUNT_ERROR::EXCEEDING_MAX_BALANCE_LIMIT:
+                return "EXCEEDING_MAX_BALANCE_LIMIT";
+            case ACCOUNT_ERROR::INSUFFICIENT_BALANCE:
+                return "INSUFFICIENT_BALANCE";
+            case ACCOUNT_ERROR::USER_DOES_NOT_EXIST:
+                return "USER_DOES_NOT_EXIST";
+            default:
+                return "";
+            }
+        }
+
+        // data
         std::unordered_map<USER_ID, Balance> balance;
 
     public:
