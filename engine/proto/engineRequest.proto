@@ -5,76 +5,70 @@ import "shared.proto";
 package EngineRequest;
 
 
-message REQUEST_METADATA {
+message REQUEST_METADATA_SCHEMA {
     Shared.STREAM_ID stream = 1;
     Shared.REQUEST_ID requestId = 2;
 }
 
 
 message GET_POSITION {
-    REQUEST_METADATA metadata = 1;
+    REQUEST_METADATA_SCHEMA metadata = 1;
     Shared.USER_ID userId = 2;
     Shared.TRADABLE_CURRENCY_SYMBOL symbol = 3;
 }
 
 message CREATE_ORDER {
-    REQUEST_METADATA metadata = 1;
+    REQUEST_METADATA_SCHEMA metadata = 1;
     Shared.USER_ID userId = 2;
     Shared.ORDER_INFO payload = 3;
 }
 
 message GET_BALANCE {
-    REQUEST_METADATA metadata = 1;
+    REQUEST_METADATA_SCHEMA metadata = 1;
     Shared.USER_ID userId = 2;
     Shared.TRADABLE_CURRENCY_SYMBOL symbol = 3;
 }
 
 message ADD_BALANCE {
-    REQUEST_METADATA metadata = 1;
+    REQUEST_METADATA_SCHEMA metadata = 1;
     Shared.USER_ID userId = 2;
     Shared.TRADABLE_CURRENCY_SYMBOL symbol = 3;
     Shared.PRICE amount = 4;
 }
 
-
 message CANCEL_ORDER {
-    REQUEST_METADATA metadata = 1;
+    REQUEST_METADATA_SCHEMA metadata = 1;
     Shared.ORDER_ID orderId = 2;
 }
 
-
 message GET_DEPTH {
-    REQUEST_METADATA metadata = 1;
+    REQUEST_METADATA_SCHEMA metadata = 1;
     Shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
 }
 
 message GET_ORDERBOOK {
-    REQUEST_METADATA metadata = 1;
+    REQUEST_METADATA_SCHEMA metadata = 1;
     Shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
 }
 
 message SUBSCRIBE_EVENT {
-    REQUEST_METADATA metadata = 1;
+    REQUEST_METADATA_SCHEMA metadata = 1;
     repeated Shared.ENGINE_EVENT_TYPE events = 2;
 }
 
 message UNSUBSCRIBE_EVENT {
-    REQUEST_METADATA metadata = 1;
+    REQUEST_METADATA_SCHEMA metadata = 1;
     repeated Shared.ENGINE_EVENT_TYPE events = 2;
 }
-
-
 
 message INDEXPRICE_UPDATED {
     Shared.PRICE price = 1;
     Shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
 }
 
-
 message FUNDING_CREATED {
     Shared.TRADABLE_CURRENCY_SYMBOL symbol = 1;
 }
-
 
 message ENGINE_REQUEST {
     oneof request {

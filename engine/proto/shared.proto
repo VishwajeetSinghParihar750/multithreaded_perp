@@ -3,7 +3,6 @@ syntax = "proto3";
 package Shared;
 
 
-
 enum ORDER_STATUS {
     FILLED = 0;
     OPEN = 1;
@@ -16,16 +15,16 @@ enum TRADABLE_CURRENCY_SYMBOL {
     SOLUSD_TCS = 1;
     ETHUSD_TCS = 2;
 }
+
 enum CURRENCY_SYMBOL {
-    USD = 0 ;
+    USD = 0;
     BTCUSD = 1;
     SOLUSD = 2;
     ETHUSD = 3;
 }
 
-
-enum SIDE  {
-    LONG  = 0;
+enum SIDE {
+    LONG = 0;
     SHORT = 1;
 }
 
@@ -46,6 +45,7 @@ message POSITION_ID {
 message USER_ID {
     string value = 1;
 }
+
 message ORDER_ID {
     string value = 1;
 }
@@ -58,13 +58,14 @@ message QTY {
     int64 value = 1;
 }
 
-
 message MARGIN {
     int64 value = 1;
 }
+
 message FILL_ID {
     string value = 1;
 }
+
 message REQUEST_ID {
     string value = 1;
 }
@@ -73,18 +74,17 @@ message STREAM_ID {
     string value = 1;
 }
 
-
-
 message DEPTH_LEVEL {
     PRICE price = 1;
     QTY qty = 2;
 }
+
 message DEPTH_INFO {
     repeated DEPTH_LEVEL asks = 1;
     repeated DEPTH_LEVEL bids = 2;
 }
 
-message ORDER_INFO { 
+message ORDER_INFO {
     PRICE price = 1;
     QTY qty = 2;
     TRADABLE_CURRENCY_SYMBOL symbol = 3;

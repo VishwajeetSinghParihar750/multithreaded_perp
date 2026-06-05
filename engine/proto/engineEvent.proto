@@ -5,73 +5,71 @@ package EngineEvent;
 import "shared.proto";
 
 
-message EVENT_METADATA {
+message EVENT_METADATA_SCHEMA {
     string idempotencyKey = 1;
     Shared.ENGINE_EVENT_TYPE type = 2;
 }
 
 
-
-
-// actual messages 
+// actual messages
 message DEPTH_UPDATED {
-    EVENT_METADATA metadata = 1;
-    shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    EVENT_METADATA_SCHEMA metadata = 1;
+    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
     Shared.DEPTH_INFO depthUpdates = 3;
 }
 
 message INDEXPRICE_UPDATED {
-    EVENT_METADATA metadata = 1;
-    shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
-    shared.PRICE price = 3;
+    EVENT_METADATA_SCHEMA metadata = 1;
+    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    Shared.PRICE price = 3;
 }
 
 message LAST_TRADED_PRICE_UPDATED {
-    EVENT_METADATA metadata = 1;
-    shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
-    shared.PRICE price = 3;
+    EVENT_METADATA_SCHEMA metadata = 1;
+    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    Shared.PRICE price = 3;
 }
 
 message TRADES_CREATED {
-    EVENT_METADATA metadata = 1;
-    shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
-    repeated LEVEL trades = 3;
+    EVENT_METADATA_SCHEMA metadata = 1;
+    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    repeated Shared.DEPTH_LEVEL trades = 3;
 }
 
 message ORDER_CANCELLED {
-    EVENT_METADATA metadata = 1;
-    shared.ORDER_ID orderId = 2;
+    EVENT_METADATA_SCHEMA metadata = 1;
+    Shared.ORDER_ID orderId = 2;
 }
 
 message FUNDING_CREATED {
-    EVENT_METADATA metadata = 1;
-    shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    EVENT_METADATA_SCHEMA metadata = 1;
+    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
 }
 
 message ORDER_CREATED {
-    EVENT_METADATA metadata = 1;
-    shared.USER_ID userId = 2;
-    shared.ORDER_ID orderId = 3;
-    shared.PRICE price = 4;
-    shared.QTY filledQty = 5;
-    shared.QTY qty = 6;
-    shared.MARGIN margin = 7;
-    shared.MARGIN_TYPE marginType = 8;
-    shared.SIDE side = 9;
-    shared.TYPE type = 10;
-    shared.TRADABLE_CURRENCY_SYMBOL symbol = 11;
-    shared.ORDER_STATUS orderStatus = 12;
+    EVENT_METADATA_SCHEMA metadata = 1;
+    Shared.USER_ID userId = 2;
+    Shared.ORDER_ID orderId = 3;
+    Shared.PRICE price = 4;
+    Shared.QTY filledQty = 5;
+    Shared.QTY qty = 6;
+    Shared.MARGIN margin = 7;
+    Shared.MARGIN_TYPE marginType = 8;
+    Shared.SIDE side = 9;
+    Shared.TYPE type = 10;
+    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 11;
+    Shared.ORDER_STATUS orderStatus = 12;
 }
 
 message FILLS_CREATED {
-    EVENT_METADATA metadata = 1;
-    shared.FILL_ID fillId = 2;
+    EVENT_METADATA_SCHEMA metadata = 1;
+    Shared.FILL_ID fillId = 2;
     Shared.FILL_ORDER_INFO buyOrderInfo = 3;
     Shared.FILL_ORDER_INFO sellOrderInfo = 4;
-    shared.QTY qty = 5;
-    shared.PRICE price = 6;
-    shared.PRICE bidPrice = 7;
-    shared.TRADABLE_CURRENCY_SYMBOL symbol = 8;
+    Shared.QTY qty = 5;
+    Shared.PRICE price = 6;
+    Shared.PRICE bidPrice = 7;
+    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 8;
 }
 
 message ENGINE_EVENT {
