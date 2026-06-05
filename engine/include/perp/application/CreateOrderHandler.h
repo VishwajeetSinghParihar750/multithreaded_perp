@@ -5,12 +5,12 @@
 #include <inttypes.h>
 
 #include "../domain/RiskEngine.h";
-#include "../domain/Orderbook.h"
+#include "../domain/MatchingEngine.h"
 #include "../domain/PositionManager.h"
 #include "../domain/Account.h"
 #include "../domain/types.h"
 #include "../status/status.h"
-#include "../util/ErrorHandling.h"
+#include "../util/macros.h"
 namespace APPLICATION
 {
 
@@ -34,12 +34,12 @@ namespace APPLICATION
     {
 
         DOMAIN::RiskEngine &riskEngine;
-        DOMAIN::Orderbook &orderbook;
+        DOMAIN::MatchingEngine &matchingEngine;
         DOMAIN::PositionManager &positionManager;
         DOMAIN::Account &account;
 
-        CreateOrderHandler(DOMAIN::RiskEngine &riskEngine_, DOMAIN::Orderbook &orderbook_, DOMAIN::PositionManager &positionManager_, DOMAIN::Account &account_)
-            : riskEngine(riskEngine_), orderbook(orderbook_), positionManager(positionManager_), account(account_) {}
+        CreateOrderHandler(DOMAIN::RiskEngine &riskEngine_, DOMAIN::MatchingEngine &matchingEngine_, DOMAIN::PositionManager &positionManager_, DOMAIN::Account &account_)
+            : riskEngine(riskEngine_), matchingEngine(matchingEngine_), positionManager(positionManager_), account(account_) {}
 
         static STATUS::StatusOr<DOMAIN::Order> commandToDomain(CreateOrderCommand command) {}
 
@@ -48,6 +48,12 @@ namespace APPLICATION
             ASSIGN_OR_RETURN(order, commandToDomain(command));
 
             ASSIGN_OR_RETURN(marginRequired, riskEngine.evaluateOrder(order));
+
+            ASSIGN_OR_RETURN(updatedBal, account.lockBalance(order.userId, order.margin));
+
+            // ASSIGN_OR_RETURN(([ trades, returnedMargins ]), matchingEngine.placeOrder(order));
+
+            // ASSIGN_OR_RETURN(userPnl, positionManager.applyTrades(trades));
         }
     };
 

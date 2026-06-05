@@ -6,6 +6,7 @@
 #include "inttypes.h"
 #include <expected>
 #include <assert.h>
+#include "../status/status.h"
 namespace DOMAIN
 {
 
@@ -44,48 +45,46 @@ namespace DOMAIN
 
         std::unordered_map<USER_ID, Balance> balance;
 
-        std::expected<Balance, ACCOUNT_ERROR> getBalance(USER_ID userId) const
+    public:
+        STATUS::StatusOr<Balance> getBalance(USER_ID userId)
         {
-            if (!balance.contains(userId))
-                return std::unexpected(ACCOUNT_ERROR::USER_DOES_NOT_EXIST);
-
-            auto it = balance.find(userId);
-
-            assert(it != balance.end());
-
-            return it->second;
+            return balance[userId];
         }
         // return new balance
-        std::expected<Balance, ACCOUNT_ERROR> addBalance(USER_ID userId, uint64_t amount)
+        STATUS::StatusOr<Balance> addBalance(USER_ID userId, uint64_t amount)
         {
             // it should not excedd uin64_t limit
 
             uint64_t canAdd = UINT64_MAX - balance[userId].balance;
 
             if (canAdd < amount)
-                return std::unexpected(ACCOUNT_ERROR::EXCEEDING_MAX_BALANCE_LIMIT);
+                return std::unexpected(STATUS::Status(STATUS::StatusCode::kFailedPrecondition,
+                                                      accountErrorToStringView(ACCOUNT_ERROR::EXCEEDING_MAX_BALANCE_LIMIT)));
 
             balance[userId].balance += amount;
 
             return balance[userId];
         }
+
         // return new balance
-        std::expected<Balance, ACCOUNT_ERROR> removeBalance(USER_ID userId, uint64_t amount)
+        STATUS::StatusOr<Balance> removeBalance(USER_ID userId, uint64_t amount)
         {
             if (balance[userId].balance < amount)
-                return std::unexpected(ACCOUNT_ERROR::INSUFFICIENT_BALANCE);
+                return std::unexpected(STATUS::Status(STATUS::StatusCode::kFailedPrecondition,
+                                                      accountErrorToStringView(ACCOUNT_ERROR::INSUFFICIENT_BALANCE)));
 
             balance[userId].balance -= amount;
 
             return balance[userId];
         }
 
-        std::expected<Balance, ACCOUNT_ERROR> lockBalance(USER_ID userId, uint64_t amount)
+        STATUS::StatusOr<Balance> lockBalance(USER_ID userId, uint64_t amount)
         {
             balance[userId]; // will create if not already
 
             if (balance[userId].balance < amount)
-                return std::unexpected(ACCOUNT_ERROR::INSUFFICIENT_BALANCE);
+                return std::unexpected(STATUS::Status(STATUS::StatusCode::kFailedPrecondition,
+                                                      accountErrorToStringView(ACCOUNT_ERROR::INSUFFICIENT_BALANCE)));
 
             balance[userId].balance -= amount;
             balance[userId].lockedBalance += amount;
