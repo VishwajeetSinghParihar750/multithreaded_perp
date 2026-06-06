@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "account.h"
 #include "expected"
 #include "inttypes.h"
@@ -23,7 +25,7 @@ namespace DOMAIN
         RiskEngine(Account account_) : account(account_) {}
 
         // return margin required for this order
-        STATUS::StatusOr<uint64_t> evaluateOrder(Order order)
+        STATUS::StatusOr<uint64_t> evaluateOrder(const std::unique_ptr<Order> &order)
         {
         }
     };

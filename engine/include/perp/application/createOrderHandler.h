@@ -3,6 +3,7 @@
 
 #include <string>
 #include <inttypes.h>
+#include <memory>
 
 #include "eventBus.h"
 
@@ -19,6 +20,7 @@ namespace APPLICATION
 
     class CreateOrderCommand
     {
+    public:
         DOMAIN::USER_ID userId;
         uint64_t price;
         uint64_t quantity;
@@ -29,10 +31,6 @@ namespace APPLICATION
         DOMAIN::MARGIN_TYPE marginType;
     };
 
-    class CreateOrderResponse
-    {
-    };
-
     class CreateOrderHandler
     {
 
@@ -40,24 +38,25 @@ namespace APPLICATION
 
         DOMAIN::RiskEngine &riskEngine;
         DOMAIN::MatchingEngine &matchingEngine;
-        DOMAIN::PositionManager &positionManager;
         DOMAIN::Account &account;
 
-    public:
-        CreateOrderHandler(EventBus &eventBus_, DOMAIN::RiskEngine &riskEngine_, DOMAIN::MatchingEngine &matchingEngine_, DOMAIN::PositionManager &positionManager_, DOMAIN::Account &account_)
-            : eventBus(eventBus_), riskEngine(riskEngine_), matchingEngine(matchingEngine_), positionManager(positionManager_), account(account_) {}
-
-        DOMAIN::Order commandToDomain(CreateOrderCommand command)
+        std::unique_ptr<DOMAIN::Order> commandToOrder(const CreateOrderCommand &command)
         {
+            return std::make_unique<DOMAIN::Order>(DOMAIN::Order(command.userId, command.price, command.quantity, command.margin,
+                                                                 command.symbol, command.side, command.type, command.marginType));
         }
 
-        STATUS::StatusOr<CreateOrderResponse> handle(CreateOrderCommand command)
-        {
-            auto order = commandToDomain(command);
-            ASSIGN_OR_RETURN(marginRequired, riskEngine.evaluateOrder(order));
-            ASSIGN_OR_RETURN(updatedBal, account.lockBalance(order.userId, order.margin));
+    public:
+        CreateOrderHandler(EventBus &eventBus_, DOMAIN::RiskEngine &riskEngine_, DOMAIN::MatchingEngine &matchingEngine_, DOMAIN::Account &account_)
+            : eventBus(eventBus_), riskEngine(riskEngine_), matchingEngine(matchingEngine_), account(account_) {}
 
-            auto events = matchingEngine.placeOrder(order);
+        STATUS::StatusOr<void> handle(CreateOrderCommand command)
+        {
+            auto order = commandToOrder(command);
+            ASSIGN_OR_RETURN(marginRequired, riskEngine.evaluateOrder(order));
+            ASSIGN_OR_RETURN(updatedBal, account.lockBalance(order->userId, order->margin));
+
+            auto events = matchingEngine.placeOrder(std::move(order));
 
             for (const auto &ev : events)
                 eventBus.emit(ev);

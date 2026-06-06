@@ -1,19 +1,26 @@
 #pragma once
 #include <tuple>
 #include <vector>
+#include <memory>
+
 #include "trade.h"
 #include "event/event.h"
 #include "order.h"
-namespace DOMAIN
+#include "orderbook.h"
+#include "event/event.h"
 
+namespace DOMAIN
 {
-    using event = int;
     class MatchingEngine
     {
+        Orderbook &orderbook;
 
     public:
-        std::vector<Event> placeOrder(DOMAIN::Order order)
+        MatchingEngine(Orderbook &orderbook) : orderbook(orderbook) {}
+
+        std::vector<Event> placeOrder(std::unique_ptr<DOMAIN::Order> order)
         {
+            //
         }
     };
 }
