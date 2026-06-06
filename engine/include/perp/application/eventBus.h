@@ -4,53 +4,55 @@
 #include <unordered_set>
 #include <inttypes.h>
 #include <assert.h>
-
-enum class EventType
-{
-};
-class Event
-{
-public:
-    EventType type;
-};
-
-using EventHandler = std::function<void(Event)>;
+#include <typeindex>
 
 using SubscriptionId = uint64_t;
+
 class EventBus
 {
 
     SubscriptionId subscriptionIdCounter = 0;
-    std::unordered_map<EventType, std::unordered_set<SubscriptionId>> subscriptions;
-    std::unordered_map<SubscriptionId, EventHandler> eventHandlers;
-    std::unordered_map<SubscriptionId, EventType> subscriptionEventType;
+
+    std::unordered_map<std::type_index, std::unordered_set<SubscriptionId>> subscriptions;
+
+    std::unordered_map<SubscriptionId, std::function<void()>> eventHandlers;
+    std::unordered_map<SubscriptionId, std::type_index> subscriptionEventType;
 
 public:
+    template <typename Event>
     void emit(const Event &event)
     {
-        if (!subscriptions.contains(event.type))
+        std::type_index type(typeid(Event));
+
+        if (!subscriptions.contains(type))
             return;
 
-        for (auto subId : subscriptions[event.type])
+        for (auto subId : subscriptions[type])
         {
             assert(eventHandlers.contains(subId));
             eventHandlers[subId](event);
         }
     }
 
-    void subscribe(const Event &event, const EventHandler &eventHandler)
+    template <typename Event>
+    void subscribe(const Event &event, const std::function<void(
+                                           Event)> &eventHandler)
     {
         auto newSubId = subscriptionIdCounter++;
 
-        subscriptions[event.type].insert(newSubId);
+        std::type_index type(typeid(Event));
+
+        subscriptions[type].insert(newSubId);
         eventHandlers[newSubId] = eventHandler;
-        subscriptionEventType[newSubId] = event.type;
+        subscriptionEventType[newSubId] = type;
     }
 
     void unsubscribe(SubscriptionId id)
     {
 
         assert(subscriptionEventType.contains(id));
+
+        std::type_index type = subscriptionEventType[id];
 
         subscriptions[subscriptionEventType[id]].erase(id);
         subscriptionEventType.erase(id);

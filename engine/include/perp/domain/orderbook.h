@@ -47,8 +47,6 @@ namespace DOMAIN
                                             const OppostePriceLevelsType &oppositePriceLevels)
         {
 
-            auto canMatch = [](PRICE curOrderPrice, PRICE opOrderPrice, SIDE curOrderSide) -> bool {};
-
             while (!oppositePrices() && order->filledQuantity < order->quantity)
             {
 
