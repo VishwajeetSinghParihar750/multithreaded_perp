@@ -22,9 +22,9 @@ namespace APPLICATION
     {
     public:
         DOMAIN::USER_ID userId;
-        uint64_t price;
-        uint64_t quantity;
-        uint64_t margin;
+        DOMAIN::PRICE price;
+        DOMAIN::QUANTITY quantity;
+        DOMAIN::PRICE margin;
         DOMAIN::TRADABLE_CURRENCY_SYMBOL symbol;
         DOMAIN::SIDE side;
         DOMAIN::ORDER_TYPE type;

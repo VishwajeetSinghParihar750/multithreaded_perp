@@ -1,5 +1,6 @@
 #pragma once
 
+#include <inttypes.h>
 #include <string>
 
 namespace DOMAIN
@@ -7,6 +8,9 @@ namespace DOMAIN
 
     using USER_ID = std::string;
     using ORDER_ID = std::string;
+
+    using PRICE = uint64_t;
+    using QUANTITY = uint64_t;
 
     enum class SIDE
     {

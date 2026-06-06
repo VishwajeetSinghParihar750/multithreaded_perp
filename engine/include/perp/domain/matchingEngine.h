@@ -13,14 +13,28 @@ namespace DOMAIN
 {
     class MatchingEngine
     {
-        Orderbook &orderbook;
+        using SymbolOrderbook = std::unordered_map<TRADABLE_CURRENCY_SYMBOL, std::shared_ptr<Orderbook>>;
+        SymbolOrderbook &orderbooks;
+
+        std::vector<Event> match(const std::unique_ptr<Order> &order)
+        {
+        }
+        void sitOnBook(std::unique_ptr<Order> order)
+        {
+            orderbooks[order->symbol]->sitOnBook(std::move(order));
+        }
 
     public:
-        MatchingEngine(Orderbook &orderbook) : orderbook(orderbook) {}
+        MatchingEngine(SymbolOrderbook &orderbooks) : orderbooks(orderbooks) {}
 
-        std::vector<Event> placeOrder(std::unique_ptr<DOMAIN::Order> order)
+        std::vector<Event> placeOrder(std::unique_ptr<Order> order)
         {
-            //
+            auto events = match(order);
+
+            if (order->type == ORDER_TYPE::LIMIT && order->filledQuantity < order->quantity)
+                sitOnBook(std::move(order));
+
+            return events;
         }
     };
 }

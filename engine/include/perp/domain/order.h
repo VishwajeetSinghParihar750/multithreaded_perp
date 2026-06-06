@@ -15,10 +15,10 @@ namespace DOMAIN
 
   public:
     USER_ID userId;
-    uint64_t price;
-    uint64_t quantity;
-    uint64_t margin;
-    uint64_t filledQuantity;
+    PRICE price;
+    QUANTITY quantity;
+    PRICE margin;
+    QUANTITY filledQuantity;
     TRADABLE_CURRENCY_SYMBOL symbol;
     ORDER_STATUS status;
     SIDE side;
@@ -26,10 +26,10 @@ namespace DOMAIN
     MARGIN_TYPE marginType;
     ORDER_ID orderId;
 
-    Order(USER_ID userId, uint64_t price, uint64_t quantity,
-          uint64_t margin, TRADABLE_CURRENCY_SYMBOL symbol,
+    Order(USER_ID userId, PRICE price, QUANTITY quantity,
+          PRICE margin, TRADABLE_CURRENCY_SYMBOL symbol,
           SIDE side, ORDER_TYPE type, MARGIN_TYPE marginType,
-          ORDER_STATUS status = ORDER_STATUS::OPEN, uint64_t filledQuantity = 0)
+          ORDER_STATUS status = ORDER_STATUS::OPEN, QUANTITY filledQuantity = 0)
 
         : userId(userId),
           price(price), quantity(quantity),
