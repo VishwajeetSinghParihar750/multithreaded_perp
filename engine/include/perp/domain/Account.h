@@ -90,6 +90,15 @@ namespace DOMAIN
 
             return balance[userId];
         }
+
+        void unlockBalance(USER_ID userId, uint64_t amount)
+        {
+            assert(balance.contains(userId));
+            assert(balance[userId].lockedBalance >= amount);
+
+            balance[userId].balance += amount;
+            balance[userId].lockedBalance -= amount;
+        }
     };
 
 } // namespace DOMAIN

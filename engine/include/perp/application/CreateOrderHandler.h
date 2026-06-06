@@ -4,6 +4,8 @@
 #include <string>
 #include <inttypes.h>
 
+#include "EventBus.h"
+
 #include "../domain/RiskEngine.h";
 #include "../domain/MatchingEngine.h"
 #include "../domain/PositionManager.h"
@@ -33,27 +35,31 @@ namespace APPLICATION
     class CreateOrderHandler
     {
 
+        EventBus &eventBus;
+
         DOMAIN::RiskEngine &riskEngine;
         DOMAIN::MatchingEngine &matchingEngine;
         DOMAIN::PositionManager &positionManager;
         DOMAIN::Account &account;
 
-        CreateOrderHandler(DOMAIN::RiskEngine &riskEngine_, DOMAIN::MatchingEngine &matchingEngine_, DOMAIN::PositionManager &positionManager_, DOMAIN::Account &account_)
-            : riskEngine(riskEngine_), matchingEngine(matchingEngine_), positionManager(positionManager_), account(account_) {}
+    public:
+        CreateOrderHandler(EventBus &eventBus_, DOMAIN::RiskEngine &riskEngine_, DOMAIN::MatchingEngine &matchingEngine_, DOMAIN::PositionManager &positionManager_, DOMAIN::Account &account_)
+            : eventBus(eventBus_), riskEngine(riskEngine_), matchingEngine(matchingEngine_), positionManager(positionManager_), account(account_) {}
 
-        static STATUS::StatusOr<DOMAIN::Order> commandToDomain(CreateOrderCommand command) {}
+        static STATUS::StatusOr<DOMAIN::Order> commandToDomain(CreateOrderCommand command)
+        {
+        }
 
         STATUS::StatusOr<CreateOrderResponse> handle(CreateOrderCommand command)
         {
             ASSIGN_OR_RETURN(order, commandToDomain(command));
-
             ASSIGN_OR_RETURN(marginRequired, riskEngine.evaluateOrder(order));
-
             ASSIGN_OR_RETURN(updatedBal, account.lockBalance(order.userId, order.margin));
 
-            // ASSIGN_OR_RETURN(([ trades, returnedMargins ]), matchingEngine.placeOrder(order));
+            auto events = matchingEngine.placeOrder(order);
 
-            // ASSIGN_OR_RETURN(userPnl, positionManager.applyTrades(trades));
+            for (const auto &ev : events)
+                eventBus.emit(ev);
         }
     };
 
