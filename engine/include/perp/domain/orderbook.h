@@ -15,7 +15,6 @@
 #include "types.h"
 #include "trade.h"
 #include "eventBus.h"
-#include "idProvider.h"
 namespace DOMAIN
 {
 
@@ -27,17 +26,19 @@ namespace DOMAIN
 
         //
         RiskEngine &riskEngine;
-        IdProvider &idProvider;
+        TradeFactory &tradeFactory;
         EventBus &eventBus;
         MARKET_ID marketId;
 
+        //
         std::priority_queue<PRICE, std::vector<PRICE>, std::greater<PRICE>> asksPrices;
         std::priority_queue<PRICE> bidsPrices;
 
         std::unordered_map<PRICE, PriceLevel> askPriceLevels;
         std::unordered_map<PRICE, PriceLevel> bidPriceLevels;
 
-        std::unordered_map<ORDER_ID, OrderPtr> orders; //
+        std::unordered_map<ORDER_ID, OrderPtr> orders;
+        //
 
         void cancelOrderStatusAndEmit(const std::unique_ptr<Order> &order)
         {
@@ -77,14 +78,12 @@ namespace DOMAIN
                 order1->quantity,
                 order1->status};
 
-            TradeCreated tradeEvent{
-                idProvider.getNextTradeId(),
+            TradeCreated tradeEvent = tradeFactory.create(
                 tradePrice,
                 tradeQuantity,
                 marketId,
                 order1->side == SIDE::LONG ? order1Info : order2Info,
-                order1->side == SIDE::SHORT ? order1Info : order2Info,
-            };
+                order1->side == SIDE::SHORT ? order1Info : order2Info);
 
             eventBus.emit<TradeCreated>(tradeEvent);
         }
@@ -193,8 +192,8 @@ namespace DOMAIN
         }
 
     public:
-        Orderbook(RiskEngine &riskEngine_, IdProvider idProvider_, EventBus &eventBus_, MARKET_ID marketId_)
-            : riskEngine(riskEngine_), idProvider(idProvider_), eventBus(eventBus_), marketId(marketId_) {}
+        Orderbook(RiskEngine &riskEngine_, TradeFactory tradeFactory_, EventBus &eventBus_, MARKET_ID marketId_)
+            : riskEngine(riskEngine_), tradeFactory(tradeFactory_), eventBus(eventBus_), marketId(marketId_) {}
 
         void placeOrder(std::unique_ptr<Order> order)
         {

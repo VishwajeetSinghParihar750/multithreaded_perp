@@ -6,14 +6,14 @@
 #include <memory>
 
 #include "eventBus.h"
-#include "../domain/riskEngine.h";
+
+#include "../domain/riskEngine.h"
 #include "../domain/orderbook.h"
-#include "../domain/idProvider.h"
 #include "../domain/positionManager.h"
 #include "../domain/account.h"
-#include "../status/status.h"
-
 #include "../domain/types.h"
+
+#include "../status/status.h"
 #include "../util/macros.h"
 namespace APPLICATION
 {
@@ -37,21 +37,18 @@ namespace APPLICATION
         DOMAIN::RiskEngine &riskEngine;
         DOMAIN::Orderbook &orderbook;
         DOMAIN::Account &account;
-        DOMAIN::IdProvider &idProvider;
+        DOMAIN::OrderFactory &orderFactory;
 
         std::unique_ptr<DOMAIN::Order> commandToOrder(const CreateOrderCommand &command)
         {
-            return std::make_unique<DOMAIN::Order>(
-                DOMAIN::Order{
-                    command.userId, command.price, command.quantity, command.margin,
-                    0, command.marketId, DOMAIN::ORDER_STATUS::OPEN, command.side, command.type,
-                    command.marginType, idProvider.getNextOrderId()});
+            return orderFactory.createUniquePtr(command.userId, command.price, command.quantity, command.margin,
+                                                command.marketId, command.side, command.type, command.marginType);
         }
 
     public:
-        CreateOrderHandler(EventBus &eventBus_, DOMAIN::IdProvider &idProvider_, DOMAIN::RiskEngine &riskEngine_,
+        CreateOrderHandler(EventBus &eventBus_, DOMAIN::OrderFactory &orderFactory_, DOMAIN::RiskEngine &riskEngine_,
                            DOMAIN::Orderbook &orderbook_, DOMAIN::Account &account_)
-            : riskEngine(riskEngine_), orderbook(orderbook_), account(account_), idProvider(idProvider_) {}
+            : riskEngine(riskEngine_), orderbook(orderbook_), account(account_), orderFactory(orderFactory_) {}
 
         STATUS::StatusOr<void> handle(CreateOrderCommand command)
         {
