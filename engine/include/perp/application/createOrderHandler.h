@@ -6,9 +6,9 @@
 #include <memory>
 
 #include "eventBus.h"
-
 #include "../domain/riskEngine.h";
 #include "../domain/matchingEngine.h"
+#include "../domain/idProvider.h"
 #include "../domain/positionManager.h"
 #include "../domain/account.h"
 #include "../status/status.h"
@@ -25,7 +25,7 @@ namespace APPLICATION
         DOMAIN::PRICE price;
         DOMAIN::QUANTITY quantity;
         DOMAIN::PRICE margin;
-        DOMAIN::TRADABLE_CURRENCY_SYMBOL symbol;
+        DOMAIN::MARKET_ID symbol;
         DOMAIN::SIDE side;
         DOMAIN::ORDER_TYPE type;
         DOMAIN::MARGIN_TYPE marginType;
@@ -39,16 +39,20 @@ namespace APPLICATION
         DOMAIN::RiskEngine &riskEngine;
         DOMAIN::MatchingEngine &matchingEngine;
         DOMAIN::Account &account;
+        DOMAIN::IdProvider &idProvider;
 
         std::unique_ptr<DOMAIN::Order> commandToOrder(const CreateOrderCommand &command)
         {
-            return std::make_unique<DOMAIN::Order>(DOMAIN::Order(command.userId, command.price, command.quantity, command.margin,
-                                                                 command.symbol, command.side, command.type, command.marginType));
+            return std::make_unique<DOMAIN::Order>(
+                DOMAIN::Order{
+                    command.userId, command.price, command.quantity, command.margin,
+                    0, command.symbol, DOMAIN::ORDER_STATUS::OPEN, command.side, command.type,
+                    command.marginType, idProvider.getNextOrderId(command.symbol)});
         }
 
     public:
-        CreateOrderHandler(EventBus &eventBus_, DOMAIN::RiskEngine &riskEngine_, DOMAIN::MatchingEngine &matchingEngine_, DOMAIN::Account &account_)
-            : eventBus(eventBus_), riskEngine(riskEngine_), matchingEngine(matchingEngine_), account(account_) {}
+        CreateOrderHandler(EventBus &eventBus_, DOMAIN::IdProvider &idProvider_, DOMAIN::RiskEngine &riskEngine_, DOMAIN::MatchingEngine &matchingEngine_, DOMAIN::Account &account_)
+            : eventBus(eventBus_), riskEngine(riskEngine_), matchingEngine(matchingEngine_), account(account_), idProvider(idProvider_) {}
 
         STATUS::StatusOr<void> handle(CreateOrderCommand command)
         {
@@ -62,5 +66,4 @@ namespace APPLICATION
                 eventBus.emit(ev);
         }
     };
-
 }

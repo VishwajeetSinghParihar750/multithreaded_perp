@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <list>
 #include <functional>
+#include <any>
 #include <assert.h>
 
 #include "order.h"
@@ -43,8 +44,8 @@ namespace DOMAIN
         }
 
         template <typename OppostePricesType, typename OppostePriceLevelsType>
-        std::vector<Event> matchAgainstbook(const std::unique_ptr<Order> &order, const OppostePricesType &oppositePrices,
-                                            const OppostePriceLevelsType &oppositePriceLevels)
+        std::vector<std::any> matchAgainstbook(const std::unique_ptr<Order> &order, const OppostePricesType &oppositePrices,
+                                               const OppostePriceLevelsType &oppositePriceLevels)
         {
 
             while (!oppositePrices() && order->filledQuantity < order->quantity)
@@ -83,7 +84,7 @@ namespace DOMAIN
         }
 
     public:
-        std::vector<Event> match(const std::unique_ptr<Order> &order)
+        std::vector<std::any> match(const std::unique_ptr<Order> &order)
         {
 
             if (order->side == SIDE::LONG)

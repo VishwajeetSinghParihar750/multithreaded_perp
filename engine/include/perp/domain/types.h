@@ -8,6 +8,8 @@ namespace DOMAIN
 
     using USER_ID = std::string;
     using ORDER_ID = std::string;
+    using TRADE_ID = std::string;
+    using MARKET_ID = std::string;
 
     using PRICE = uint64_t;
     using QUANTITY = uint64_t;
@@ -16,13 +18,6 @@ namespace DOMAIN
     {
         LONG,
         SHORT
-    };
-    enum class TRADABLE_CURRENCY_SYMBOL
-    {
-        USD,
-        BTCUSD,
-        ETHUSD,
-        SOLUSD
     };
 
     enum class ORDER_TYPE

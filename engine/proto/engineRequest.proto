@@ -14,7 +14,7 @@ message REQUEST_METADATA_SCHEMA {
 message GET_POSITION {
     REQUEST_METADATA_SCHEMA metadata = 1;
     Shared.USER_ID userId = 2;
-    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 3;
+    Shared.MARKET_ID symbol = 3;
 }
 
 message CREATE_ORDER {
@@ -26,13 +26,13 @@ message CREATE_ORDER {
 message GET_BALANCE {
     REQUEST_METADATA_SCHEMA metadata = 1;
     Shared.USER_ID userId = 2;
-    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 3;
+    Shared.MARKET_ID symbol = 3;
 }
 
 message ADD_BALANCE {
     REQUEST_METADATA_SCHEMA metadata = 1;
     Shared.USER_ID userId = 2;
-    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 3;
+    Shared.MARKET_ID symbol = 3;
     Shared.PRICE amount = 4;
 }
 
@@ -43,12 +43,12 @@ message CANCEL_ORDER {
 
 message GET_DEPTH {
     REQUEST_METADATA_SCHEMA metadata = 1;
-    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    Shared.MARKET_ID symbol = 2;
 }
 
 message GET_ORDERBOOK {
     REQUEST_METADATA_SCHEMA metadata = 1;
-    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    Shared.MARKET_ID symbol = 2;
 }
 
 message SUBSCRIBE_EVENT {
@@ -63,11 +63,11 @@ message UNSUBSCRIBE_EVENT {
 
 message INDEXPRICE_UPDATED {
     Shared.PRICE price = 1;
-    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    Shared.MARKET_ID symbol = 2;
 }
 
 message FUNDING_CREATED {
-    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 1;
+    Shared.MARKET_ID symbol = 1;
 }
 
 message ENGINE_REQUEST {

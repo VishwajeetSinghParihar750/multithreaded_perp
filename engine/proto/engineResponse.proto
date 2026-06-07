@@ -36,19 +36,19 @@ message POSITION_SCHEMA {
     Shared.PRICE price = 3;
     Shared.QTY qty = 4;
     Shared.SIDE side = 5;
-    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 6;
+    Shared.MARKET_ID symbol = 6;
     Shared.MARGIN margin = 7;
     Shared.MARGIN_TYPE marginType = 8;
 }
 
 message SYMBOL_POSITION_SCHEMA {
     POSITION_SCHEMA position = 1;
-    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    Shared.MARKET_ID symbol = 2;
 }
 
 message FILL_SCHEMA {
     Shared.FILL_ID fillId = 1;
-    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    Shared.MARKET_ID symbol = 2;
     Shared.QTY qty = 3;
     Shared.PRICE price = 4;
     Shared.PRICE bidPrice = 5;

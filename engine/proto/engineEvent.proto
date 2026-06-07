@@ -14,25 +14,25 @@ message EVENT_METADATA_SCHEMA {
 // actual messages
 message DEPTH_UPDATED {
     EVENT_METADATA_SCHEMA metadata = 1;
-    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    Shared.MARKET_ID symbol = 2;
     Shared.DEPTH_INFO depthUpdates = 3;
 }
 
 message INDEXPRICE_UPDATED {
     EVENT_METADATA_SCHEMA metadata = 1;
-    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    Shared.MARKET_ID symbol = 2;
     Shared.PRICE price = 3;
 }
 
 message LAST_TRADED_PRICE_UPDATED {
     EVENT_METADATA_SCHEMA metadata = 1;
-    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    Shared.MARKET_ID symbol = 2;
     Shared.PRICE price = 3;
 }
 
 message TRADES_CREATED {
     EVENT_METADATA_SCHEMA metadata = 1;
-    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    Shared.MARKET_ID symbol = 2;
     repeated Shared.DEPTH_LEVEL trades = 3;
 }
 
@@ -43,7 +43,7 @@ message ORDER_CANCELLED {
 
 message FUNDING_CREATED {
     EVENT_METADATA_SCHEMA metadata = 1;
-    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 2;
+    Shared.MARKET_ID symbol = 2;
 }
 
 message ORDER_CREATED {
@@ -57,7 +57,7 @@ message ORDER_CREATED {
     Shared.MARGIN_TYPE marginType = 8;
     Shared.SIDE side = 9;
     Shared.TYPE type = 10;
-    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 11;
+    Shared.MARKET_ID symbol = 11;
     Shared.ORDER_STATUS orderStatus = 12;
 }
 
@@ -69,7 +69,7 @@ message FILLS_CREATED {
     Shared.QTY qty = 5;
     Shared.PRICE price = 6;
     Shared.PRICE bidPrice = 7;
-    Shared.TRADABLE_CURRENCY_SYMBOL symbol = 8;
+    Shared.MARKET_ID symbol = 8;
 }
 
 message ENGINE_EVENT {

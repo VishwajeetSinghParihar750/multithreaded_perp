@@ -2,6 +2,7 @@
 #include <tuple>
 #include <vector>
 #include <memory>
+#include <any>
 
 #include "trade.h"
 #include "event/event.h"
@@ -13,10 +14,10 @@ namespace DOMAIN
 {
     class MatchingEngine
     {
-        using SymbolOrderbook = std::unordered_map<TRADABLE_CURRENCY_SYMBOL, std::shared_ptr<Orderbook>>;
+        using SymbolOrderbook = std::unordered_map<MARKET_ID, std::shared_ptr<Orderbook>>;
         SymbolOrderbook &orderbooks;
 
-        std::vector<Event> match(const std::unique_ptr<Order> &order)
+        std::vector<std::any> match(const std::unique_ptr<Order> &order)
         {
         }
         void sitOnBook(std::unique_ptr<Order> order)
@@ -27,7 +28,7 @@ namespace DOMAIN
     public:
         MatchingEngine(SymbolOrderbook &orderbooks) : orderbooks(orderbooks) {}
 
-        std::vector<Event> placeOrder(std::unique_ptr<Order> order)
+        std::vector<std::any> placeOrder(std::unique_ptr<Order> order)
         {
             auto events = match(order);
 
