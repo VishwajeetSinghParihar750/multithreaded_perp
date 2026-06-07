@@ -34,8 +34,6 @@ namespace APPLICATION
     class CreateOrderHandler
     {
 
-        EventBus &eventBus;
-
         DOMAIN::RiskEngine &riskEngine;
         DOMAIN::MatchingEngine &matchingEngine;
         DOMAIN::Account &account;
@@ -52,18 +50,19 @@ namespace APPLICATION
 
     public:
         CreateOrderHandler(EventBus &eventBus_, DOMAIN::IdProvider &idProvider_, DOMAIN::RiskEngine &riskEngine_, DOMAIN::MatchingEngine &matchingEngine_, DOMAIN::Account &account_)
-            : eventBus(eventBus_), riskEngine(riskEngine_), matchingEngine(matchingEngine_), account(account_), idProvider(idProvider_) {}
+            : riskEngine(riskEngine_), matchingEngine(matchingEngine_), account(account_), idProvider(idProvider_) {}
 
         STATUS::StatusOr<void> handle(CreateOrderCommand command)
         {
             auto order = commandToOrder(command);
+
+            // check preconditions
             ASSIGN_OR_RETURN(marginRequired, riskEngine.evaluateOrder(order));
             ASSIGN_OR_RETURN(updatedBal, account.lockBalance(order->userId, order->margin));
 
-            auto events = matchingEngine.placeOrder(std::move(order));
-
-            for (const auto &ev : events)
-                eventBus.emit(ev);
+            // now everything will be taken care of with events, order cant be rejected after this
+            // only events can be reacted to
+            matchingEngine.placeOrder(std::move(order));
         }
     };
 }

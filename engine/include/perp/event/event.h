@@ -16,6 +16,7 @@ struct OrderCancelled
 };
 struct TradesCreated
 {
+    DOMAIN::MARKET_ID markerId;
     std::vector<DOMAIN::Trade> trades;
 };
 struct PositionUpdated

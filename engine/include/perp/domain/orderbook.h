@@ -13,6 +13,7 @@
 #include "event/event.h"
 #include "types.h"
 #include "trade.h"
+#include "eventBus.h"
 
 namespace DOMAIN
 {
@@ -24,9 +25,10 @@ namespace DOMAIN
         using OrderPtr = PriceLevel::iterator;
 
         //
-        //
-        //
+        EventBus &eventBus;
+        MARKET_ID marketId;
 
+        //
         std::priority_queue<PRICE, std::vector<PRICE>, std::greater<PRICE>> asksPrices;
         std::priority_queue<PRICE> bidsPrices;
 
@@ -36,16 +38,21 @@ namespace DOMAIN
         std::unordered_map<ORDER_ID, OrderPtr> orders;
 
         //
-        //
-        //
-        std::unique_ptr<Trade> matchOrders(const std::unique_ptr<Order> &order1, const std::unique_ptr<Order> &order2)
+
+        void matchOrders(const std::unique_ptr<Order> &order1, const std::unique_ptr<Order> &order2, PRICE margin1Required, PRICE margin2Required)
         {
+            // emit trade
+            auto tradePrice = std::min(order1->price, order2->price);
+            auto tradeQuantity = std::min(order2->quantity - order2->filledQuantity, order1->quantity - order1->filledQuantity);
+
+            order1->margin -= margin1Required;
+            order2->margin -= margin2Required;
             //
         }
 
         template <typename OppostePricesType, typename OppostePriceLevelsType>
-        std::vector<std::any> matchAgainstbook(const std::unique_ptr<Order> &order, const OppostePricesType &oppositePrices,
-                                               const OppostePriceLevelsType &oppositePriceLevels)
+        void matchAgainstbook(const std::unique_ptr<Order> &order, const OppostePricesType &oppositePrices,
+                              const OppostePriceLevelsType &oppositePriceLevels)
         {
 
             while (!oppositePrices() && order->filledQuantity < order->quantity)
@@ -64,14 +71,16 @@ namespace DOMAIN
                                                            : curOrderPrice < opOrderPrice);
                 if (!canMatch)
                     break;
+                // could ask risk engine for required margin for trade again from both users
+                // if can trade we need required margin to deduct
 
                 // match with best price level orders
                 auto bestPriceLevel = oppositePriceLevels[bestOppositePrice];
 
                 for (auto it = bestPriceLevel.begin(); it != bestPriceLevel.end() && order->filledQuantity < order->quantity; it = bestPriceLevel.erase(it))
                 {
-                    // trades
-                    matchOrders(*it, order);
+                    // trade
+                    matchOrders(*it, order, 100, 100);
                 }
 
                 // remove level if needed
@@ -83,13 +92,13 @@ namespace DOMAIN
             }
         }
 
-    public:
-        std::vector<std::any> match(const std::unique_ptr<Order> &order)
+        void match(const std::unique_ptr<Order> &order)
         {
 
             if (order->side == SIDE::LONG)
-                return matchAgainstbook(order, asksPrices, askPriceLevels);
-            return matchAgainstbook(order, bidsPrices, bidPriceLevels);
+                matchAgainstbook(order, asksPrices, askPriceLevels);
+            else
+                matchAgainstbook(order, bidsPrices, bidPriceLevels);
         }
 
         void sitOnBook(std::unique_ptr<Order> order)
@@ -116,6 +125,16 @@ namespace DOMAIN
                 askPriceLevels[price].push_back(std::move(order));
                 orders[orderId] = prev(askPriceLevels[price].end());
             }
+        }
+
+    public:
+        Orderbook(EventBus &eventBus_, MARKET_ID marketId_) : eventBus(eventBus_), marketId(marketId_) {}
+
+        void placeOrder(std::unique_ptr<Order> order)
+        {
+            match(order);
+            if (order->type == ORDER_TYPE::LIMIT && order->filledQuantity < order->quantity)
+                sitOnBook(std::move(order));
         }
     };
 
