@@ -21,6 +21,7 @@ namespace DOMAIN
     class Orderbook
     {
 
+        using Depth = std::tuple<PRICE, QUANTITY>;
         using PriceLevel = std::list<std::unique_ptr<Order>>;
         using OrderPtr = PriceLevel::iterator;
 
@@ -34,8 +35,8 @@ namespace DOMAIN
         std::priority_queue<PRICE, std::vector<PRICE>, std::greater<PRICE>> asksPrices;
         std::priority_queue<PRICE> bidsPrices;
 
-        std::unordered_map<PRICE, PriceLevel> askPriceLevels;
-        std::unordered_map<PRICE, PriceLevel> bidPriceLevels;
+        std::unordered_map<PRICE, std::tuple<QUANTITY, PriceLevel>> askPriceLevels;
+        std::unordered_map<PRICE, std::tuple<QUANTITY, PriceLevel>> bidPriceLevels;
 
         std::unordered_map<ORDER_ID, OrderPtr> orders;
         //
@@ -165,7 +166,8 @@ namespace DOMAIN
                 matchAgainstbook(order, bidsPrices, bidPriceLevels);
         }
 
-        void sitOnBook(std::unique_ptr<Order> order)
+        template <typename PriceLevelsType>
+        void sitOnBook(std::unique_ptr<Order> order, PriceLevelsType &priceLevels)
         {
             assert(order->quantity > order->filledQuantity);
             assert(!orders.contains(order->orderId));
@@ -173,22 +175,12 @@ namespace DOMAIN
             auto orderId = order->orderId;
             auto price = order->price;
 
-            if (order->side == SIDE::LONG)
-            {
-                if (!bidPriceLevels.contains(price))
-                    bidsPrices.push(price);
+            if (!priceLevels.contains(price))
+                asksPrices.push(price);
 
-                bidPriceLevels[price].push_back(std::move(order));
-                orders[orderId] = prev(bidPriceLevels[price].end());
-            }
-            else
-            {
-                if (!askPriceLevels.contains(price))
-                    asksPrices.push(price);
-
-                askPriceLevels[price].push_back(std::move(order));
-                orders[orderId] = prev(askPriceLevels[price].end());
-            }
+            auto &[qty, priceLevel] = priceLevels[price];
+            qty += order->quantity - order->filledQuantity;
+            priceLevel.push_back(std::move(order));
         }
 
     public:
@@ -199,11 +191,55 @@ namespace DOMAIN
         {
             match(order);
             if (order->status != ORDER_STATUS::CANCELLED && order->type == ORDER_TYPE::LIMIT && order->filledQuantity < order->quantity)
-                sitOnBook(std::move(order));
+                sitOnBook(std::move(order), order->side == SIDE::LONG ? bidPriceLevels : askPriceLevels);
         }
 
         void cancelOrder(ORDER_ID orderId)
         {
+            assert(orders.contains(orderId));
+
+            auto orderPtr = orders[orderId];
+            auto price = orderPtr->get()->price;
+
+            if (orderPtr->get()->side == SIDE::LONG)
+            {
+                auto &[qty, priceLevel] = bidPriceLevels[price];
+
+                qty -= orderPtr->get()->quantity - orderPtr->get()->filledQuantity;
+                priceLevel.erase(orderPtr);
+
+                if (qty == 0)
+                    bidPriceLevels.erase(price);
+            }
+            else
+            {
+                auto &[qty, priceLevel] = askPriceLevels[price];
+
+                qty -= orderPtr->get()->quantity - orderPtr->get()->filledQuantity;
+                priceLevel.erase(orderPtr);
+
+                if (qty == 0)
+                    askPriceLevels.erase(price);
+            }
+
+            orders.erase(orderId);
+
+            // emit event
+            OrderCancelled event{orderId};
+            eventBus.emit<OrderCancelled>(event);
+        }
+
+        // [ long, short ] depths
+        std::tuple<std::vector<Depth>, std::vector<Depth>> getDepth() const
+        {
+            std::vector<Depth> longDepths, shortDepths;
+            for (const auto &[price, levelInfo] : askPriceLevels)
+                longDepths.emplace_back(price, std::get<0>(levelInfo));
+
+            for (const auto &[price, levelInfo] : bidPriceLevels)
+                shortDepths.emplace_back(price, std::get<0>(levelInfo));
+
+            return {longDepths, shortDepths};
         }
     };
 

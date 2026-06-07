@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-#include "../application/eventBus.h"
+#include "eventBus.h"
 #include "types.h"
 #include "../event/event.h"
 
@@ -13,19 +13,16 @@ namespace DOMAIN
         PRICE indexPrice; // real exchange price
         PRICE markPrice;  // current exchange price
 
-        void handleTradePriceUpdates(const TradesCreated &event)
+        void handleTradePriceUpdates(const TradeCreated &trade)
         {
-            // set markprice to last traded price
-            if (event.trades.empty())
-                return;
-            markPrice = event.trades.back().price;
+            markPrice = trade.price;
         }
 
     public:
         Market(MARKET_ID marketId_, PRICE indexPrice_, EventBus &eventBus) : marketId(marketId_), indexPrice(indexPrice_), markPrice(0)
         {
-            eventBus.subscribe<TradesCreated>([this](const TradesCreated &event) -> void
-                                              { this->handleTradePriceUpdates(event); });
+            eventBus.subscribe<TradeCreated>([this](const TradeCreated &event) -> void
+                                             { this->handleTradePriceUpdates(event); });
         }
 
         PRICE getIndexPrice() const
