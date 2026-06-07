@@ -15,7 +15,7 @@ class EventBus
 
     std::unordered_map<std::type_index, std::unordered_set<SubscriptionId>> subscriptions;
 
-    std::unordered_map<SubscriptionId, std::function<void()>> eventHandlers;
+    std::unordered_map<SubscriptionId, std::function<void(const void *)>> eventHandlers;
     std::unordered_map<SubscriptionId, std::type_index> subscriptionEventType;
 
 public:
@@ -30,21 +30,26 @@ public:
         for (auto subId : subscriptions[type])
         {
             assert(eventHandlers.contains(subId));
-            eventHandlers[subId](event);
+            eventHandlers[subId](&event);
         }
     }
 
     template <typename Event>
-    void subscribe(const Event &event, const std::function<void(
-                                           Event)> &eventHandler)
+    SubscriptionId subscribe(std::function<void(const Event &)> eventHandler)
     {
         auto newSubId = subscriptionIdCounter++;
 
         std::type_index type(typeid(Event));
 
         subscriptions[type].insert(newSubId);
-        eventHandlers[newSubId] = eventHandler;
-        subscriptionEventType[newSubId] = type;
+        eventHandlers[newSubId] = [eventHandler](const void *eventPtr)
+        {
+            eventHandler(*static_cast<const Event *>(eventPtr));
+        };
+
+        subscriptionEventType.emplace(newSubId, type);
+
+        return newSubId;
     }
 
     void unsubscribe(SubscriptionId id)
@@ -52,9 +57,8 @@ public:
 
         assert(subscriptionEventType.contains(id));
 
-        std::type_index type = subscriptionEventType[id];
-
-        subscriptions[subscriptionEventType[id]].erase(id);
+        auto type = subscriptionEventType.at(id);
+        subscriptions[type].erase(id);
         subscriptionEventType.erase(id);
         eventHandlers.erase(id);
     }
