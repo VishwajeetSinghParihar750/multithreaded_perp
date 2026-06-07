@@ -25,7 +25,11 @@ namespace DOMAIN
         RiskEngine(Account account_) : account(account_) {}
 
         // return margin required for this order
-        STATUS::StatusOr<uint64_t> evaluateOrder(const std::unique_ptr<Order> &order)
+        STATUS::StatusOr<PRICE> evaluateOrder(const std::unique_ptr<Order> &order)
+        {
+        }
+        // return margin required from both orders
+        std::tuple<PRICE, PRICE> evaluateTrade(const std::unique_ptr<Order> &order1, const std::unique_ptr<Order> &order2)
         {
         }
     };

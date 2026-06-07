@@ -10,11 +10,12 @@
 #include <assert.h>
 
 #include "order.h"
+#include "riskEngine.h"
 #include "event/event.h"
 #include "types.h"
 #include "trade.h"
 #include "eventBus.h"
-
+#include "idProvider.h"
 namespace DOMAIN
 {
 
@@ -25,6 +26,8 @@ namespace DOMAIN
         using OrderPtr = PriceLevel::iterator;
 
         //
+        RiskEngine &riskEngine;
+        IdProvider &idProvider;
         EventBus &eventBus;
         MARKET_ID marketId;
 
@@ -37,17 +40,54 @@ namespace DOMAIN
 
         std::unordered_map<ORDER_ID, OrderPtr> orders;
 
-        //
+        void cancelOrderStatusAndEmit(const std::unique_ptr<Order> &order)
+        {
+            order->status = ORDER_STATUS::CANCELLED;
+
+            OrderCancelled event{order->orderId};
+            eventBus.emit<OrderCancelled>(event);
+        }
 
         void matchOrders(const std::unique_ptr<Order> &order1, const std::unique_ptr<Order> &order2, PRICE margin1Required, PRICE margin2Required)
         {
-            // emit trade
-            auto tradePrice = std::min(order1->price, order2->price);
-            auto tradeQuantity = std::min(order2->quantity - order2->filledQuantity, order1->quantity - order1->filledQuantity);
+            PRICE tradePrice = std::min(order1->price, order2->price);
+            QUANTITY tradeQuantity = std::min(order2->quantity - order2->filledQuantity, order1->quantity - order1->filledQuantity);
+
+            assert(tradeQuantity > 0);
 
             order1->margin -= margin1Required;
             order2->margin -= margin2Required;
-            //
+
+            order1->filledQuantity += tradeQuantity;
+            order2->filledQuantity += tradeQuantity;
+
+            order1->status = (order1->filledQuantity == order1->quantity ? ORDER_STATUS::FILLED : ORDER_STATUS::PARTIALLY_FILLED);
+            order2->status = (order2->filledQuantity == order2->quantity ? ORDER_STATUS::FILLED : ORDER_STATUS::PARTIALLY_FILLED);
+
+            // emit trade
+            auto order1Info = TradeOrderInfo{
+                order1->userId,
+                order1->orderId,
+                order1->filledQuantity,
+                order1->quantity,
+                order1->status};
+            auto order2Info = TradeOrderInfo{
+                order1->userId,
+                order1->orderId,
+                order1->filledQuantity,
+                order1->quantity,
+                order1->status};
+
+            TradeCreated tradeEvent{
+                idProvider.getNextTradeId(),
+                tradePrice,
+                tradeQuantity,
+                marketId,
+                order1->side == SIDE::LONG ? order1Info : order2Info,
+                order1->side == SIDE::SHORT ? order1Info : order2Info,
+            };
+
+            eventBus.emit<TradeCreated>(tradeEvent);
         }
 
         template <typename OppostePricesType, typename OppostePriceLevelsType>
@@ -71,16 +111,42 @@ namespace DOMAIN
                                                            : curOrderPrice < opOrderPrice);
                 if (!canMatch)
                     break;
-                // could ask risk engine for required margin for trade again from both users
-                // if can trade we need required margin to deduct
 
                 // match with best price level orders
                 auto bestPriceLevel = oppositePriceLevels[bestOppositePrice];
 
-                for (auto it = bestPriceLevel.begin(); it != bestPriceLevel.end() && order->filledQuantity < order->quantity; it = bestPriceLevel.erase(it))
+                for (auto it = bestPriceLevel.begin(); it != bestPriceLevel.end() && order->filledQuantity < order->quantity;)
                 {
+                    // could ask risk engine for required margin for trade again from both users
+                    // if can trade we need required margin to deduct
+                    auto [marginRequired1, marginRequired2] = riskEngine.evaluateTrade(*it, order);
+
+                    if (marginRequired1 > it->margin)
+                    {
+                        cancelOrderStatusAndEmit(it);
+
+                        // remove from orderbook
+                        orders.erase(it->orderId);
+                        it = bestPriceLevel.erase(it);
+
+                        continue;
+                    }
+                    if (marginRequired2 > order->margin)
+                    {
+                        cancelOrderStatusAndEmit(order);
+                        return;
+                    }
+
                     // trade
-                    matchOrders(*it, order, 100, 100);
+                    matchOrders(*it, order, marginRequired1, marginRequired2);
+
+                    if (it->filledQuantity == it->quantity)
+                    {
+                        // remove from orderbook
+                        orders.erase(it->orderId);
+                        it = bestPriceLevel.erase(it)
+                    }
+                    // else it should break anyways
                 }
 
                 // remove level if needed
@@ -128,12 +194,13 @@ namespace DOMAIN
         }
 
     public:
-        Orderbook(EventBus &eventBus_, MARKET_ID marketId_) : eventBus(eventBus_), marketId(marketId_) {}
+        Orderbook(RiskEngine &riskEngine_, IdProvider idProvider_, EventBus &eventBus_, MARKET_ID marketId_)
+            : riskEngine(riskEngine_), idProvider(idProvider_), eventBus(eventBus_), marketId(marketId_) {}
 
         void placeOrder(std::unique_ptr<Order> order)
         {
             match(order);
-            if (order->type == ORDER_TYPE::LIMIT && order->filledQuantity < order->quantity)
+            if (order->status != ORDER_STATUS::CANCELLED && order->type == ORDER_TYPE::LIMIT && order->filledQuantity < order->quantity)
                 sitOnBook(std::move(order));
         }
     };

@@ -7,7 +7,7 @@
 
 #include "eventBus.h"
 #include "../domain/riskEngine.h";
-#include "../domain/matchingEngine.h"
+#include "../domain/orderbook.h"
 #include "../domain/idProvider.h"
 #include "../domain/positionManager.h"
 #include "../domain/account.h"
@@ -35,7 +35,7 @@ namespace APPLICATION
     {
 
         DOMAIN::RiskEngine &riskEngine;
-        DOMAIN::MatchingEngine &matchingEngine;
+        DOMAIN::Orderbook &orderbook;
         DOMAIN::Account &account;
         DOMAIN::IdProvider &idProvider;
 
@@ -49,8 +49,9 @@ namespace APPLICATION
         }
 
     public:
-        CreateOrderHandler(EventBus &eventBus_, DOMAIN::IdProvider &idProvider_, DOMAIN::RiskEngine &riskEngine_, DOMAIN::MatchingEngine &matchingEngine_, DOMAIN::Account &account_)
-            : riskEngine(riskEngine_), matchingEngine(matchingEngine_), account(account_), idProvider(idProvider_) {}
+        CreateOrderHandler(EventBus &eventBus_, DOMAIN::IdProvider &idProvider_, DOMAIN::RiskEngine &riskEngine_,
+                           DOMAIN::Orderbook &orderbook_, DOMAIN::Account &account_)
+            : riskEngine(riskEngine_), orderbook(orderbook_), account(account_), idProvider(idProvider_) {}
 
         STATUS::StatusOr<void> handle(CreateOrderCommand command)
         {
@@ -62,7 +63,7 @@ namespace APPLICATION
 
             // now everything will be taken care of with events, order cant be rejected after this
             // only events can be reacted to
-            matchingEngine.placeOrder(std::move(order));
+            orderbook.placeOrder(std::move(order));
         }
     };
 }

@@ -9,16 +9,12 @@
 #include "../domain/types.h"
 
 using OrderPlaced = DOMAIN::Order;
-
+using TradeCreated = DOMAIN::Trade;
 struct OrderCancelled
 {
     DOMAIN::ORDER_ID orderId;
 };
-struct TradesCreated
-{
-    DOMAIN::MARKET_ID markerId;
-    std::vector<DOMAIN::Trade> trades;
-};
+
 struct PositionUpdated
 {
 };
