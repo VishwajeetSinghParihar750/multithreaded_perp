@@ -47,7 +47,7 @@ namespace APPLICATION
                 DOMAIN::Order{
                     command.userId, command.price, command.quantity, command.margin,
                     0, command.symbol, DOMAIN::ORDER_STATUS::OPEN, command.side, command.type,
-                    command.marginType, idProvider.getNextOrderId(command.symbol)});
+                    command.marginType, idProvider.getNextOrderId()});
         }
 
     public:
