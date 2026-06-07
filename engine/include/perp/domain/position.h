@@ -3,7 +3,7 @@
 #include "types.h"
 namespace DOMAIN
 {
-    class Position
+    struct Position
     {
         USER_ID userId;
         PRICE price;
@@ -12,5 +12,6 @@ namespace DOMAIN
         MARKET_ID marketId;
         PRICE margin;
         MARGIN_TYPE marginType;
+        PRICE liquidationPrice;
     };
 } // namespace DOMAIN
