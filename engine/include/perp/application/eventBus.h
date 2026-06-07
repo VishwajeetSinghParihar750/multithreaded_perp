@@ -5,17 +5,17 @@
 #include <inttypes.h>
 #include <assert.h>
 #include <typeindex>
+#include <any>
 
 using SubscriptionId = uint64_t;
 
 class EventBus
 {
-
     SubscriptionId subscriptionIdCounter = 0;
 
     std::unordered_map<std::type_index, std::unordered_set<SubscriptionId>> subscriptions;
 
-    std::unordered_map<SubscriptionId, std::function<void(const void *)>> eventHandlers;
+    std::unordered_map<SubscriptionId, std::function<void(const std::any &)>> eventHandlers;
     std::unordered_map<SubscriptionId, std::type_index> subscriptionEventType;
 
 public:
@@ -30,7 +30,7 @@ public:
         for (auto subId : subscriptions[type])
         {
             assert(eventHandlers.contains(subId));
-            eventHandlers[subId](&event);
+            eventHandlers[subId](event); // this event is converted to std::any
         }
     }
 
@@ -42,9 +42,9 @@ public:
         std::type_index type(typeid(Event));
 
         subscriptions[type].insert(newSubId);
-        eventHandlers[newSubId] = [eventHandler](const void *eventPtr)
+        eventHandlers[newSubId] = [eventHandler](const std::any &anyEvent)
         {
-            eventHandler(*static_cast<const Event *>(eventPtr));
+            eventHandler(std::any_cast<const Event &>(anyEvent));
         };
 
         subscriptionEventType.emplace(newSubId, type);
