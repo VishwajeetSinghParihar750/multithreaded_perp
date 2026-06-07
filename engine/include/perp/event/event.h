@@ -5,14 +5,18 @@
 
 #include "../domain/types.h"
 #include "../domain/order.h"
+#include "../domain/trade.h"
+#include "../domain/types.h"
 
 using OrderPlaced = DOMAIN::Order;
+
 struct OrderCancelled
 {
     DOMAIN::ORDER_ID orderId;
 };
 struct TradesCreated
 {
+    std::vector<DOMAIN::Trade> trades;
 };
 struct PositionUpdated
 {
