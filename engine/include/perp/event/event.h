@@ -21,7 +21,7 @@ struct PositionUpdated
 
 struct DepthUpdated
 {
-    DOMAIN::MARKET_ID symbol;
+    DOMAIN::MARKET_ID marketId;
     std::vector<std::tuple<DOMAIN::PRICE, DOMAIN::QUANTITY>> bids;
     std::vector<std::tuple<DOMAIN::PRICE, DOMAIN::QUANTITY>> asks;
 };

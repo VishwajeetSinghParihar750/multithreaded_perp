@@ -31,14 +31,13 @@ namespace DOMAIN
         EventBus &eventBus;
         MARKET_ID marketId;
 
-        //
         std::priority_queue<PRICE, std::vector<PRICE>, std::greater<PRICE>> asksPrices;
         std::priority_queue<PRICE> bidsPrices;
 
         std::unordered_map<PRICE, PriceLevel> askPriceLevels;
         std::unordered_map<PRICE, PriceLevel> bidPriceLevels;
 
-        std::unordered_map<ORDER_ID, OrderPtr> orders;
+        std::unordered_map<ORDER_ID, OrderPtr> orders; //
 
         void cancelOrderStatusAndEmit(const std::unique_ptr<Order> &order)
         {
@@ -202,6 +201,10 @@ namespace DOMAIN
             match(order);
             if (order->status != ORDER_STATUS::CANCELLED && order->type == ORDER_TYPE::LIMIT && order->filledQuantity < order->quantity)
                 sitOnBook(std::move(order));
+        }
+
+        void cancelOrder(ORDER_ID orderId)
+        {
         }
     };
 

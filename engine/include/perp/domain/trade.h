@@ -19,7 +19,7 @@ namespace DOMAIN
         TRADE_ID tradeId;
         PRICE price;
         QUANTITY filledQuantity;
-        MARKET_ID symbol;
+        MARKET_ID marketId;
         TradeOrderInfo longOrderInfo;
         TradeOrderInfo shortOrderInfo;
     };

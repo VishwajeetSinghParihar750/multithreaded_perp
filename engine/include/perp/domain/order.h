@@ -14,7 +14,7 @@ namespace DOMAIN
     QUANTITY quantity;
     PRICE margin;
     QUANTITY filledQuantity;
-    MARKET_ID symbol;
+    MARKET_ID marketId;
     ORDER_STATUS status;
     SIDE side;
     ORDER_TYPE type;

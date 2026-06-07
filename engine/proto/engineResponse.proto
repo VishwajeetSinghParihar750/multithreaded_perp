@@ -26,7 +26,7 @@ message ORDERBOOK_SCHEMA {
 }
 
 message CURRENCY_BALANCE_SCHEMA {
-    Shared.CURRENCY_SYMBOL symbol = 1;
+    Shared.CURRENCY_marketId marketId = 1;
     Shared.QTY amount = 2;
 }
 
@@ -36,19 +36,19 @@ message POSITION_SCHEMA {
     Shared.PRICE price = 3;
     Shared.QTY qty = 4;
     Shared.SIDE side = 5;
-    Shared.MARKET_ID symbol = 6;
+    Shared.MARKET_ID marketId = 6;
     Shared.MARGIN margin = 7;
     Shared.MARGIN_TYPE marginType = 8;
 }
 
-message SYMBOL_POSITION_SCHEMA {
+message marketId_POSITION_SCHEMA {
     POSITION_SCHEMA position = 1;
-    Shared.MARKET_ID symbol = 2;
+    Shared.MARKET_ID marketId = 2;
 }
 
 message FILL_SCHEMA {
     Shared.FILL_ID fillId = 1;
-    Shared.MARKET_ID symbol = 2;
+    Shared.MARKET_ID marketId = 2;
     Shared.QTY qty = 3;
     Shared.PRICE price = 4;
     Shared.PRICE bidPrice = 5;
@@ -104,7 +104,7 @@ message DEPTH {
 
 message POSITION {
     RESPONSE_METADATA_SCHEMA metadata = 1;
-    repeated SYMBOL_POSITION_SCHEMA position = 2;
+    repeated marketId_POSITION_SCHEMA position = 2;
 }
 
 message ORDERBOOK {

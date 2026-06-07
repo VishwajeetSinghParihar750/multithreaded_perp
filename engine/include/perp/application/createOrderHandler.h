@@ -25,7 +25,7 @@ namespace APPLICATION
         DOMAIN::PRICE price;
         DOMAIN::QUANTITY quantity;
         DOMAIN::PRICE margin;
-        DOMAIN::MARKET_ID symbol;
+        DOMAIN::MARKET_ID marketId;
         DOMAIN::SIDE side;
         DOMAIN::ORDER_TYPE type;
         DOMAIN::MARGIN_TYPE marginType;
@@ -44,7 +44,7 @@ namespace APPLICATION
             return std::make_unique<DOMAIN::Order>(
                 DOMAIN::Order{
                     command.userId, command.price, command.quantity, command.margin,
-                    0, command.symbol, DOMAIN::ORDER_STATUS::OPEN, command.side, command.type,
+                    0, command.marketId, DOMAIN::ORDER_STATUS::OPEN, command.side, command.type,
                     command.marginType, idProvider.getNextOrderId()});
         }
 

@@ -16,7 +16,7 @@ enum MARKET_ID {
     ETHUSD_TCS = 2;
 }
 
-enum CURRENCY_SYMBOL {
+enum CURRENCY_marketId {
     USD = 0;
     BTCUSD = 1;
     SOLUSD = 2;
@@ -87,7 +87,7 @@ message DEPTH_INFO {
 message ORDER_INFO {
     PRICE price = 1;
     QTY qty = 2;
-    MARKET_ID symbol = 3;
+    MARKET_ID marketId = 3;
     MARGIN margin = 4;
     MARGIN_TYPE marginType = 5;
     TYPE type = 6;
