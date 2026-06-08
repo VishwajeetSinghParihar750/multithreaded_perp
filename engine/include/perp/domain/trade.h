@@ -14,6 +14,8 @@ namespace DOMAIN
         QUANTITY filledQuantity;
         QUANTITY totalQuantity;
         ORDER_STATUS status;
+        PRICE margin;
+        MARGIN_TYPE marginType;
     };
     struct Trade
     {

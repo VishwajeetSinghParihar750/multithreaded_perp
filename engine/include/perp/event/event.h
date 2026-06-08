@@ -32,3 +32,10 @@ struct LastTradePriceUpdated
 struct IndexPriceUpdated
 {
 };
+
+struct userPnlCreated
+{
+    DOMAIN::USER_ID userId;
+    int64_t pnl;
+    DOMAIN::PRICE releasedMargin;
+};

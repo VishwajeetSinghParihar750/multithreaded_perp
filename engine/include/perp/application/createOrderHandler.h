@@ -50,7 +50,7 @@ namespace APPLICATION
                            DOMAIN::Orderbook &orderbook_, DOMAIN::Account &account_)
             : riskEngine(riskEngine_), orderbook(orderbook_), account(account_), orderFactory(orderFactory_) {}
 
-        STATUS::StatusOr<void> handle(CreateOrderCommand command)
+        STATUS::StatusOr<DOMAIN::Order> handle(CreateOrderCommand command)
         {
             auto order = commandToOrder(command);
 
@@ -60,7 +60,7 @@ namespace APPLICATION
 
             // now everything will be taken care of with events, order cant be rejected after this
             // only events can be reacted to
-            orderbook.placeOrder(std::move(order));
+            return orderbook.placeOrder(std::move(order));
         }
     };
 }

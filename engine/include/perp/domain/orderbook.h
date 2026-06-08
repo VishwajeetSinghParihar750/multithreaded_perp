@@ -59,6 +59,9 @@ namespace DOMAIN
             order1->margin -= margin1Required;
             order2->margin -= margin2Required;
 
+            assert(order1->margin >= 0);
+            assert(order2->margin >= 0);
+
             order1->filledQuantity += tradeQuantity;
             order2->filledQuantity += tradeQuantity;
 
@@ -71,13 +74,17 @@ namespace DOMAIN
                 order1->orderId,
                 order1->filledQuantity,
                 order1->quantity,
-                order1->status};
+                order1->status,
+                margin1Required,
+                order1->marginType};
             auto order2Info = TradeOrderInfo{
                 order1->userId,
                 order1->orderId,
                 order1->filledQuantity,
                 order1->quantity,
-                order1->status};
+                order1->status,
+                margin2Required,
+                order2->marginType};
 
             TradeCreated tradeEvent = tradeFactory.create(
                 tradePrice,
@@ -187,11 +194,16 @@ namespace DOMAIN
         Orderbook(RiskEngine &riskEngine_, TradeFactory tradeFactory_, EventBus &eventBus_, MARKET_ID marketId_)
             : riskEngine(riskEngine_), tradeFactory(tradeFactory_), eventBus(eventBus_), marketId(marketId_) {}
 
-        void placeOrder(std::unique_ptr<Order> order)
+        Order placeOrder(std::unique_ptr<Order> order)
         {
             match(order);
+
+            Order toReturn = *order;
+
             if (order->status != ORDER_STATUS::CANCELLED && order->type == ORDER_TYPE::LIMIT && order->filledQuantity < order->quantity)
                 sitOnBook(std::move(order), order->side == SIDE::LONG ? bidPriceLevels : askPriceLevels);
+
+            return toReturn;
         }
 
         void cancelOrder(ORDER_ID orderId)
