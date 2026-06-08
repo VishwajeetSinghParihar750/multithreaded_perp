@@ -1,8 +1,0 @@
-
-
-namespace DOMAIN
-{
-    class LiquidationEngine
-    {
-    };
-}

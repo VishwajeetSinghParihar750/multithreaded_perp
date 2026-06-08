@@ -7,6 +7,8 @@
 #include <expected>
 #include <assert.h>
 #include "../status/status.h"
+#include "../event/event.h"
+#include "eventBus.h"
 namespace DOMAIN
 {
 
@@ -41,10 +43,27 @@ namespace DOMAIN
             }
         }
 
+        //
+        void handleUserPnl(const userPnlCreated &userPnl)
+        {
+            balance[userPnl.userId].lockedBalance -= userPnl.releasedMargin;
+            balance[userPnl.userId].balance += userPnl.pnl;
+
+            assert(balance[userPnl.userId].lockedBalance >= 0);
+            assert(balance[userPnl.userId].balance >= 0);
+        }
+
         // data
         std::unordered_map<USER_ID, Balance> balance;
 
     public:
+        Account(EventBus &eventBus)
+        {
+
+            eventBus.subscribe<userPnlCreated>([this](const userPnlCreated &userPnl)
+                                               { this->handleUserPnl(userPnl); });
+        }
+
         STATUS::StatusOr<Balance> getBalance(USER_ID userId)
         {
             return balance[userId];

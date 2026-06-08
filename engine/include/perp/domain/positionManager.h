@@ -25,7 +25,7 @@ namespace DOMAIN
         {
             auto &price = trade.price;
             auto &qty = trade.filledQuantity;
-            //
+            // apply trade
             auto curSideTrade = side == SIDE::LONG ? trade.longOrderInfo : trade.shortOrderInfo;
             if (!positions.contains(curSideTrade.userId))
             {
@@ -86,6 +86,10 @@ namespace DOMAIN
                     eventBus.emit<userPnlCreated>(userPnlCreated{position->userId, pnl, releasedMargin});
                 }
             }
+
+            // update liquidation price
+            Position &positionToUpdate = side == SIDE::LONG ? *positions[trade.longOrderInfo.userId] : *positions[trade.shortOrderInfo.userId];
+            positionToUpdate.liquidationPrice = riskEngine.getLiquidationPrice(positionToUpdate);
         }
 
     public:
