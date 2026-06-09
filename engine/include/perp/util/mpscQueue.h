@@ -7,7 +7,7 @@
 #include <condition_variable>
 
 template <typename T>
-class spscQueue
+class mpscQueue
 {
     std::queue<T> q;
 
